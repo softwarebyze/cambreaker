@@ -1,0 +1,36 @@
+CAMBREAKER — APP REVIEW NOTES (also pasted in Resolution Center reply)
+
+1. PURPOSE & AUDIENCE
+CamBreaker is a free, offline, single-player arcade game: a faithful recreation
+of the classic BlackBerry-era brick-breaker, rebuilt for iPhone. Target audience
+is casual mobile gamers and nostalgia players. There are no accounts, no ads,
+no purchases, no network calls, and no data collection of any kind. The entire
+game (34 boards, 3 lives, score, high scores stored on-device) works fully offline.
+
+2. MAIN FEATURES & HOW TO ACCESS THEM (no login, no setup needed)
+- PLAY: tap Play on the menu. Tap the screen to launch the ball; drag anywhere
+  to slide the paddle (Touch steering, works on every device).
+- CAMERA CONTROL STEERING (requires iPhone 16 or newer hardware): light-press
+  the Camera Control button to open the system overlay, double-light-press to
+  switch controls if needed, choose "Paddle", then swipe on the control to
+  steer. A full press acts as the fire/launch button. A built-in "Camera Control
+  test" screen on the menu demonstrates the slider live, and the pause menu
+  shows the live swipe value.
+- If the review device has no Camera Control button, everything is fully
+  playable with Touch steering — no feature is locked behind the hardware.
+- HOW TO PLAY screen documents all 10 capsules, scoring, and rules in-app.
+- The attached screen recording (physical iPhone 17 Pro, latest iOS) shows:
+  app launch, Play, ball launch, paddle steering, brick breaking.
+
+3. EXTERNAL SERVICES / TOOLS / PLATFORMS
+None. The app makes zero network requests and integrates no third-party SDKs,
+analytics, ads, auth, payments, or AI services. Camera frames are processed
+on-device only for the live background/preview and are never stored or sent.
+
+4. REGIONAL DIFFERENCES
+None. The app functions identically in all regions and languages (English UI).
+
+5. REGULATED INDUSTRY / THIRD-PARTY MATERIAL
+Not applicable. All artwork, boards, code, and sounds are original and created
+for this app. "BlackBerry-style" in the description refers only to genre
+homage (breakout gameplay); no BlackBerry trademarks, assets, or code are used.

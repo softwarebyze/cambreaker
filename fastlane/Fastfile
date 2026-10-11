@@ -64,9 +64,16 @@ platform :ios do
         first_name: "Zachary",
         last_name: "Ebenfeld",
         email_address: "zackebenfeld@gmail.com",
-        phone_number: "+19545931670"
+        phone_number: "+19545931670",
+        notes: File.read(File.expand_path("../fastlane/review_notes.txt", __dir__))
       },
-      app_rating_config_path: File.expand_path("../fastlane/rating.json", __dir__)
+      app_version: ENV.fetch("APP_VERSION", "1.0.1"),
+      app_rating_config_path: File.expand_path("../fastlane/rating.json", __dir__),
+      # Demo video (physical-device screen recording) attached when present.
+      app_review_attachment_file: begin
+        p = File.expand_path("../fastlane/review_demo.mp4", __dir__)
+        File.exist?(p) ? p : nil
+      end
     )
   end
 end
