@@ -58,16 +58,19 @@ struct GameView: View {
             // the game or shrinks to a peephole above it.
             CameraPreviewView(session: camera.session)
                 .zIndex(gameState.useCameraBackground ? 0 : 2)
-                .frame(width: gameState.useCameraBackground ? nil : 104,
-                       height: gameState.useCameraBackground ? nil : 78)
-                .clipShape(RoundedRectangle(cornerRadius: gameState.useCameraBackground ? 0 : 10))
+                .frame(width: gameState.useCameraBackground ? nil : 52,
+                       height: gameState.useCameraBackground ? nil : 38)
+                .clipShape(RoundedRectangle(cornerRadius: gameState.useCameraBackground ? 0 : 8))
                 .overlay(
-                    RoundedRectangle(cornerRadius: gameState.useCameraBackground ? 0 : 10)
-                        .stroke(Color.white.opacity(gameState.useCameraBackground ? 0 : 0.35), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: gameState.useCameraBackground ? 0 : 8)
+                        .stroke(Color.white.opacity(gameState.useCameraBackground ? 0 : 0.3), lineWidth: 1)
                 )
+                // Bottom-leading corner is dead space: the paddle sits above it
+                // and the ball can never travel below the paddle.
                 .padding(.leading, gameState.useCameraBackground ? 0 : 12)
-                .padding(.top, gameState.useCameraBackground ? 0 : 70)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.bottom, gameState.useCameraBackground ? 0 : 14)
+                .frame(maxWidth: .infinity, maxHeight: .infinity,
+                       alignment: gameState.useCameraBackground ? .center : .bottomLeading)
                 .ignoresSafeArea(gameState.useCameraBackground ? .all : [])
                 .allowsHitTesting(false)
 
@@ -106,22 +109,26 @@ struct GameView: View {
             VStack {
                 HStack {
                     Spacer()
-                    Button {
-                        pausedFromUI = true
-                        scene?.isPaused = true
-                        gameState.phase = .paused
-                    } label: {
-                        Image(systemName: "pause.fill")
-                            .foregroundStyle(.white)
-                            .padding(10)
-                            .background(Color.white.opacity(0.15))
-                            .clipShape(Circle())
+                    if canPause {
+                        Button {
+                            pausedFromUI = true
+                            scene?.isPaused = true
+                            gameState.phase = .paused
+                        } label: {
+                            Image(systemName: "pause.fill")
+                                .foregroundStyle(.white)
+                                .padding(10)
+                                .background(Color.white.opacity(0.15))
+                                .clipShape(Circle())
+                        }
                     }
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 10)
                 Spacer()
             }
+            // Above the SpriteKit view (zIndex 1) so the button is really tappable.
+            .zIndex(3)
 
             if pausedFromUI { pauseMenu }
             if gameState.phase == .levelClear { levelClearCard }
@@ -164,6 +171,11 @@ struct GameView: View {
 
     // MARK: HUD
 
+    /// Pause only makes sense while a run is actually in progress.
+    private var canPause: Bool {
+        gameState.phase == .playing || gameState.phase == .serving
+    }
+
     private var hudBar: some View {
         HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 0) {
@@ -184,11 +196,23 @@ struct GameView: View {
                 .font(.system(.headline, design: .monospaced))
             Spacer()
             LivesView(lives: gameState.lives)
-            // Pause lives here visually, but the actual tappable button is
-            // pauseOverlay below: anything inside this touch-transparent HUD
-            // can't receive taps, and SwiftUI has no child opt-out.
-            Color.clear
-                .frame(width: 40, height: 40)
+            // Pause is meaningless once the run is decided — hide it so it
+            // can't be tapped into a dead state.
+            if canPause {
+                Button {
+                    pausedFromUI = true
+                    scene?.isPaused = true
+                    gameState.phase = .paused
+                } label: {
+                    Image(systemName: "pause.fill")
+                        .foregroundStyle(.white)
+                        .padding(10)
+                        .background(Color.white.opacity(0.15))
+                        .clipShape(Circle())
+                }
+            } else {
+                Color.clear.frame(width: 40, height: 40)
+            }
         }
         .foregroundStyle(.white)
         .padding(.horizontal, 14)
@@ -327,6 +351,7 @@ struct GameView: View {
             }
             .buttonStyle(BigButton(color: .red))
         }
+        .zIndex(4) // above the game view so its controls receive taps
     }
 
     private var levelClearCard: some View {
@@ -338,6 +363,7 @@ struct GameView: View {
             }
             .buttonStyle(BigButton(color: .green))
         }
+        .zIndex(4) // above the game view so its buttons receive taps
     }
 
     private var gameOverCard: some View {
@@ -373,6 +399,7 @@ struct GameView: View {
             }
             .buttonStyle(BigButton(color: .gray))
         }
+        .zIndex(4) // above the game view so its controls receive taps
     }
 
     private func settingRow<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
