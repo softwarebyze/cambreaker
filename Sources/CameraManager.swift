@@ -100,8 +100,9 @@ final class CameraManager: NSObject, ObservableObject {
     func setPaddleFromTouchUI(_ value: Float) {
         paddlePosition = value
         // Keep the hardware control in sync so the overlay doesn't go stale.
-        if #available(iOS 18.0, *) {
-            paddleSlider?.value = value
+        // AVCaptureSlider asserts on its own queue, never the main thread.
+        if #available(iOS 18.0, *), let slider = paddleSlider {
+            sessionQueue.async { slider.value = value }
         }
     }
 

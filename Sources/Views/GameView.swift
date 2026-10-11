@@ -52,39 +52,36 @@ struct GameView: View {
 
     private func gameContent(bottomClearance: CGFloat) -> some View {
         ZStack {
-            // Optional live-camera background (behind the transparent scene),
-            // dimmed so the bricks stay readable.
+            // ONE persistent camera preview, never created/destroyed while the
+            // session runs (churning preview layers under a live capture
+            // session crashes AVFoundation). It either fills the screen behind
+            // the game or shrinks to a peephole above it.
+            CameraPreviewView(session: camera.session)
+                .zIndex(gameState.useCameraBackground ? 0 : 2)
+                .frame(width: gameState.useCameraBackground ? nil : 104,
+                       height: gameState.useCameraBackground ? nil : 78)
+                .clipShape(RoundedRectangle(cornerRadius: gameState.useCameraBackground ? 0 : 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: gameState.useCameraBackground ? 0 : 10)
+                        .stroke(Color.white.opacity(gameState.useCameraBackground ? 0 : 0.35), lineWidth: 1)
+                )
+                .padding(.leading, gameState.useCameraBackground ? 0 : 12)
+                .padding(.top, gameState.useCameraBackground ? 0 : 70)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .ignoresSafeArea(gameState.useCameraBackground ? .all : [])
+                .allowsHitTesting(false)
+
             if gameState.useCameraBackground {
-                CameraPreviewView(session: camera.session)
-                    .ignoresSafeArea()
                 Color.black.opacity(0.55)
                     .ignoresSafeArea()
                     .allowsHitTesting(false)
+                    .zIndex(0.5)
             }
 
             if let scene {
                 GameSKView(scene: scene)
                     .ignoresSafeArea()
-            }
-
-            // A visible camera feed is what keeps the Camera Control overlay
-            // coming up, so the game always shows at least a peephole — full
-            // background when enabled, a lil monitor otherwise.
-            if !gameState.useCameraBackground {
-                VStack {
-                    HStack {
-                        CameraPreviewView(session: camera.session)
-                            .frame(width: 104, height: 78)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .overlay(RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.35), lineWidth: 1))
-                            .padding(.top, 70)
-                            .padding(.leading, 12)
-                        Spacer()
-                    }
-                    Spacer()
-                }
-                .allowsHitTesting(false)
+                    .zIndex(1)
             }
 
             // HUD strip. Everything informational lives in the TOP half —
